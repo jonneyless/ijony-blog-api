@@ -1,0 +1,13 @@
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /api/entries              --> blog/controllers.(*entryCtr).index-fm (7 handlers)
+[GIN-debug] GET    /api/entries/:id          --> blog/controllers.(*entryCtr).view-fm (7 handlers)
+[GIN-debug] POST   /api/entries              --> blog/controllers.(*entryCtr).create-fm (7 handlers)
+[GIN-debug] PUT    /api/entries/:id          --> blog/controllers.(*entryCtr).update-fm (7 handlers)
+[GIN-debug] DELETE /api/entries/:id          --> blog/controllers.(*entryCtr).delete-fm (7 handlers)
+[GIN-debug] [WARNING] Headers were already written. Wanted to override status code 200 with 403
+[GIN] 2022/01/11 - 16:50:03 | 403 |   40.085648ms |       127.0.0.1 | POST     "/api/entries?debug=1"
