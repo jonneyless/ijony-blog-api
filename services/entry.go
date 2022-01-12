@@ -1,37 +1,37 @@
 package services
 
 import (
-    "strconv"
+	"strconv"
 
-    "blog/models"
-    "github.com/gin-gonic/gin"
-    "gorm.io/gorm/clause"
+	"blog/models"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm/clause"
 )
 
 func NewEntry() *models.Entries {
-    return &models.Entries{}
+	return &models.Entries{}
 }
 
 func GetEntry(ctx *gin.Context) models.Entries {
-    var item models.Entries
+	var item models.Entries
 
-    id := ctx.Param("id")
+	id := ctx.Param("entryId")
 
-    db().First(&item, "id = ?", id)
+	db().Preload(clause.Associations).First(&item, "id = ?", id)
 
-    return item
+	return item
 }
 
 func GetEntries(ctx *gin.Context) ([]models.Entries, error) {
-    var items []models.Entries
+	var items []models.Entries
 
-    page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
-    limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 
-    err := db().Preload(clause.Associations).Offset((page - 1) * limit).Limit(limit).Find(&items).Error
-    if err != nil {
-        return nil, err
-    }
+	err := db().Preload(clause.Associations).Offset((page - 1) * limit).Limit(limit).Find(&items).Error
+	if err != nil {
+		return nil, err
+	}
 
-    return items, nil
+	return items, nil
 }

@@ -1,36 +1,36 @@
 package services
 
 import (
-    "strconv"
+	"strconv"
 
-    "blog/models"
-    "github.com/gin-gonic/gin"
+	"blog/models"
+	"github.com/gin-gonic/gin"
 )
 
 func NewCategory() *models.Categories {
-    return &models.Categories{}
+	return &models.Categories{}
 }
 
 func GetCategory(ctx *gin.Context) models.Categories {
-    var item models.Categories
+	var item models.Categories
 
-    id := ctx.Param("id")
+	id := ctx.Param("categoryId")
 
-    db().First(&item, "id = ?", id)
+	db().First(&item, "id = ?", id)
 
-    return item
+	return item
 }
 
 func GetCategories(ctx *gin.Context) ([]models.Categories, error) {
-    var items []models.Categories
+	var items []models.Categories
 
-    page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
-    limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 
-    err := db().Offset((page - 1) * limit).Limit(limit).Find(&items).Error
-    if err != nil {
-        return nil, err
-    }
+	err := db().Offset((page - 1) * limit).Limit(limit).Find(&items).Error
+	if err != nil {
+		return nil, err
+	}
 
-    return items, nil
+	return items, nil
 }

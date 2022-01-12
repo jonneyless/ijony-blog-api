@@ -1,38 +1,41 @@
 package services
 
 import (
-    "strconv"
+	"strconv"
 
-    "blog/models"
-    "github.com/gin-gonic/gin"
-    "gorm.io/gorm/clause"
+	"blog/models"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm/clause"
 )
 
 func NewFeedback() *models.Feedbacks {
-    return &models.Feedbacks{}
+	return &models.Feedbacks{}
 }
 
-func GetFeedback(ctx *gin.Context) models.Feedbacks {
-    var item models.Feedbacks
+func GetFeedback(ctx *gin.Context) *models.Feedbacks {
+	var item *models.Feedbacks
 
-    id := ctx.Param("id")
+	id := ctx.Param("feedbackId")
 
-    db().First(&item, "id = ?", id)
+	err := db().First(&item, "id = ?", id).Error
+	if err != nil {
+		return nil
+	}
 
-    return item
+	return item
 }
 
 func GetFeedbacks(ctx *gin.Context) ([]models.Feedbacks, error) {
-    var items []models.Feedbacks
+	var items []models.Feedbacks
 
-    entryId, _ := strconv.Atoi(ctx.Param("entryId"))
-    page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
-    limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
+	entryId, _ := strconv.Atoi(ctx.Param("entryId"))
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 
-    err := db().Preload(clause.Associations).Where("entry_id = ?", entryId).Offset((page - 1) * limit).Limit(limit).Find(&items).Error
-    if err != nil {
-        return nil, err
-    }
+	err := db().Preload(clause.Associations).Where("entry_id = ?", entryId).Offset((page - 1) * limit).Limit(limit).Find(&items).Error
+	if err != nil {
+		return nil, err
+	}
 
-    return items, nil
+	return items, nil
 }
