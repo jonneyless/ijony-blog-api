@@ -13,14 +13,14 @@ import (
 
 type Feedbacks struct {
 	ID        uint           `gorm:"comment:'反馈ID';primarykey"`
-	Type      uint           `form:"type" json:"type" gorm:"type:tinyint(1);not null;comment:'反馈类型'"`
-	ParentId  uint           `form:"parent_id" json:"parent_id" gorm:"type:bigint(20);not null;comment:'父级ID';index:idx_parent_id"`
-	EntryId   uint           `form:"entry_id" json:"entry_id" gorm:"type:bigint(20);not null;comment:'内容ID';index:idx_entry_id"`
-	UserId    uint           `form:"user_id" json:"user_id" gorm:"type:bigint(20);not null;comment:'用户ID';index:idx_user_id"`
-	Url       string         `form:"url" json:"url" gorm:"type:varchar(255);default:'';comment:'关联地址'"`
-	Content   string         `form:"content" json:"content" gorm:"type:text;comment:'反馈内容'"`
-	Liked     uint           `json:"liked" gorm:"type:int(10);not null;default:0;comment:'点赞数'"`
-	Trample   uint           `json:"trample" gorm:"type:int(10);not null;default:0;comment:'点赞数'"`
+	Type      uint           `form:"type" json:"type" gorm:"type:tinyint(1) unsigned;not null;comment:'反馈类型'"`
+	ParentId  uint           `form:"parent_id" json:"parent_id" gorm:"comment:'父级ID';index:idx_parent_id"`
+	EntryId   uint           `form:"entry_id" json:"entry_id" gorm:"comment:'内容ID';index:idx_entry_id"`
+	UserId    uint           `form:"user_id" json:"user_id" gorm:"comment:'用户ID';index:idx_user_id"`
+	Url       string         `form:"url" json:"url" gorm:"type:varchar(255);not null;default:'';comment:'关联地址'"`
+	Content   string         `form:"content" json:"content" gorm:"type:text;not null;comment:'反馈内容'"`
+	Liked     uint           `json:"liked" gorm:"default:0;comment:'点赞数'"`
+	Trample   uint           `json:"trample" gorm:"default:0;comment:'点赞数'"`
 	DeletedAt gorm.DeletedAt `gorm:"comment:'删除时间';index:idx_deleted_at"`
 	CreatedAt time.Time      `gorm:"comment:'创建时间';index:idx_created_at"`
 	UpdatedAt time.Time      `gorm:"comment:'更新时间';index:idx_updated_at"`

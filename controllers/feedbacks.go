@@ -6,6 +6,7 @@ import (
 
 	"blog/common"
 	"blog/enums"
+	"blog/middlewares"
 	"blog/services"
 
 	"github.com/gin-gonic/gin"
@@ -18,9 +19,10 @@ func registerFeedbacks(router *gin.RouterGroup) {
 
 	router.GET("/entries/:entryId/feedbacks", ctr.index)
 	router.GET("/entries/:entryId/feedbacks/:feedbackId", ctr.view)
-	router.POST("/entries/:entryId/feedbacks", ctr.create)
-	router.PUT("/entries/:entryId/feedbacks/:feedbackId", ctr.update)
-	router.DELETE("/entries/:entryId/feedbacks/:feedbackId", ctr.delete)
+
+	router.POST("/entries/:entryId/feedbacks", middlewares.NormalAuth, ctr.create)
+	router.PUT("/entries/:entryId/feedbacks/:feedbackId", middlewares.NormalAuth, ctr.update)
+	router.DELETE("/entries/:entryId/feedbacks/:feedbackId", middlewares.NormalAuth, ctr.delete)
 }
 
 func (ctr *feedbackCtr) index(ctx *gin.Context) {

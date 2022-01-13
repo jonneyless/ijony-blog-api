@@ -14,7 +14,7 @@ import (
 
 type Users struct {
 	ID           uint      `gorm:"comment:'用户ID';primarykey"`
-	Type         uint      `form:"type" json:"type" gorm:"type:tinyint(1);not null;default:0;comment:'用户类型';after:id"`
+	Type         uint      `form:"type" json:"type" gorm:"type:tinyint(1) unsigned;not null;default:0;comment:'用户类型';after:id"`
 	Username     string    `form:"username" json:"username" gorm:"<-:create;type:varchar(32);not null;comment:'登录名称';index:idx_username"`
 	Password     string    `form:"password" json:"password" gorm:"type:varchar(64);not null;comment:'登录密码'"`
 	PasswordHash string    `gorm:"-"`
@@ -22,7 +22,7 @@ type Users struct {
 	Nickname     string    `form:"nickname" json:"nickname" gorm:"type:varchar(32);not null;default:'';comment:'用户昵称';index:idx_nickname"`
 	Email        string    `form:"email" json:"email" gorm:"type:varchar(128);not null;default:'';comment:'邮箱'"`
 	Website      string    `form:"website" json:"website" gorm:"type:varchar(255);not null;default:'';comment:'网址'"`
-	Status       uint      `form:"status" json:"status" gorm:"type:tinyint(1);not null;default:9;comment:'状态'"`
+	Status       uint      `form:"status" json:"status" gorm:"type:tinyint(1) unsigned;not null;default:9;comment:'状态'"`
 	SigninAt     time.Time `gorm:"comment:'登录时间'"`
 	CreatedAt    time.Time `gorm:"comment:'注册时间';index:idx_created_at"`
 	UpdatedAt    time.Time `gorm:"comment:'更新时间';index:idx_updated_at"`
@@ -64,6 +64,10 @@ func (model *Users) Name() string {
 	}
 
 	return model.Username
+}
+
+func (model *Users) IsAdmin() bool {
+	return model.Type == enums.UserTypeAdmin
 }
 
 func (model *Users) BeforeSave(*gorm.DB) (err error) {
@@ -116,4 +120,26 @@ func (model *Users) GenToken() string {
 	}
 
 	return model.Token
+}
+
+func GetIdentity(ctx *gin.Context) *Users {
+	model := ctx.MustGet("User").(*Users)
+	if model == nil {
+		log.Panic(common.ErrorCodeException(enums.Unauthorized))
+	}
+
+	return model
+}
+
+func GetAdminIdentity(ctx *gin.Context) *Users {
+	model := ctx.MustGet("User").(*Users)
+	if model == nil {
+		log.Panic(common.ErrorCodeException(enums.Unauthorized))
+	}
+
+	if !model.IsAdmin() {
+		log.Panic(common.ErrorCodeException(enums.Forbidden))
+	}
+
+	return model
 }

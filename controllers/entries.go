@@ -6,7 +6,9 @@ import (
 
 	"blog/common"
 	"blog/enums"
+	"blog/middlewares"
 	"blog/services"
+	"blog/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,9 +20,10 @@ func registerEntries(router *gin.RouterGroup) {
 
 	router.GET("/entries", ctr.index)
 	router.GET("/entries/:entryId", ctr.view)
-	router.POST("/entries", ctr.create)
-	router.PUT("/entries/:entryId", ctr.update)
-	router.DELETE("/entries/:entryId", ctr.delete)
+
+	router.POST("/entries", middlewares.AdminAuth, ctr.create)
+	router.PUT("/entries/:entryId", middlewares.AdminAuth, ctr.update)
+	router.DELETE("/entries/:entryId", middlewares.AdminAuth, ctr.delete)
 }
 
 func (ctr *entryCtr) index(ctx *gin.Context) {
@@ -31,16 +34,25 @@ func (ctr *entryCtr) index(ctx *gin.Context) {
 
 	items := make([]gin.H, 0)
 	for _, entry := range entries {
-		items = append(items, entry.BuildListData())
+		items = append(items, entry.BuildData())
 	}
 
 	ctx.JSON(http.StatusOK, common.SuccessResponse(gin.H{"data": gin.H{"items": items}}))
 }
 
 func (ctr *entryCtr) view(ctx *gin.Context) {
+	var data gin.H
+
 	model := services.GetEntry(ctx)
 
-	ctx.JSON(http.StatusOK, common.SuccessResponse(gin.H{"data": model.BuildViewData()}))
+	if !utils.IsBackend(ctx) {
+		services.IncEntryView(model)
+		data = model.BuildData()
+	} else {
+		data = model.BuildDetail()
+	}
+
+	ctx.JSON(http.StatusOK, common.SuccessResponse(gin.H{"data": data}))
 }
 
 func (ctr *entryCtr) create(ctx *gin.Context) {
@@ -51,7 +63,7 @@ func (ctr *entryCtr) create(ctx *gin.Context) {
 		log.Panic(common.ErrorMsgException(enums.SaveError, err.Error()))
 	}
 
-	ctx.JSON(http.StatusOK, common.SuccessResponse("已创建日志", gin.H{"data": model.BuildViewData()}))
+	ctx.JSON(http.StatusOK, common.SuccessResponse("已创建日志", gin.H{"data": model.BuildDetail()}))
 }
 
 func (ctr *entryCtr) update(ctx *gin.Context) {
@@ -62,7 +74,7 @@ func (ctr *entryCtr) update(ctx *gin.Context) {
 		log.Panic(common.ErrorMsgException(enums.SaveError, err.Error()))
 	}
 
-	ctx.JSON(http.StatusOK, common.SuccessResponse("日志更新成功", gin.H{"data": model.BuildViewData()}))
+	ctx.JSON(http.StatusOK, common.SuccessResponse("日志更新成功", gin.H{"data": model.BuildDetail()}))
 }
 
 func (ctr *entryCtr) delete(ctx *gin.Context) {
@@ -73,5 +85,5 @@ func (ctr *entryCtr) delete(ctx *gin.Context) {
 		log.Panic(common.ErrorMsgException(enums.DeleteError, err.Error()))
 	}
 
-	ctx.JSON(http.StatusOK, common.SuccessResponse("日志删除成功", gin.H{"data": model.BuildViewData()}))
+	ctx.JSON(http.StatusOK, common.SuccessResponse("日志删除成功"))
 }

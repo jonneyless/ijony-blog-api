@@ -6,6 +6,7 @@ import (
 
 	"blog/common"
 	"blog/enums"
+	"blog/middlewares"
 	"blog/services"
 	"github.com/gin-gonic/gin"
 )
@@ -18,8 +19,8 @@ func registerUsers(router *gin.RouterGroup) {
 	router.GET("/users", ctr.index)
 	router.GET("/users/:userId", ctr.view)
 	router.POST("/users", ctr.create)
-	router.PUT("/users/:userId", ctr.update)
-	router.DELETE("/users/:userId", ctr.delete)
+	router.PUT("/users/:userId", middlewares.NormalAuth, ctr.update)
+	router.DELETE("/users/:userId", middlewares.NormalAuth, ctr.delete)
 }
 
 func (ctr *userCtr) index(ctx *gin.Context) {

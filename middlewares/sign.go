@@ -11,8 +11,8 @@ import (
 // Sign 验签中间件
 func Sign(ctx *gin.Context) {
 	if gin.Mode() == gin.ReleaseMode {
-		sign := ctx.Request.Header.Get("Sign")
-		signTime := ctx.Request.Header.Get("SignTime")
+		sign := ctx.Request.Header.Get("X-Sign")
+		signTime := ctx.Request.Header.Get("X-SignTime")
 
 		var params url.Values
 

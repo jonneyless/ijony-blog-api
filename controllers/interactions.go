@@ -6,6 +6,7 @@ import (
 
 	"blog/common"
 	"blog/enums"
+	"blog/middlewares"
 	"blog/services"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,7 @@ type interactionCtr struct{}
 func registerInteractions(router *gin.RouterGroup) {
 	ctr := &interactionCtr{}
 
-	router.POST("/entries/:entryId/feedbacks/:feedbackId/interactions", ctr.interaction)
+	router.POST("/entries/:entryId/feedbacks/:feedbackId/interactions", middlewares.NormalAuth, ctr.interaction)
 }
 
 func (ctr *interactionCtr) interaction(ctx *gin.Context) {

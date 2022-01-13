@@ -6,6 +6,7 @@ import (
 
 	"blog/common"
 	"blog/enums"
+	"blog/middlewares"
 	"blog/services"
 
 	"github.com/gin-gonic/gin"
@@ -18,9 +19,10 @@ func registerCategories(router *gin.RouterGroup) {
 
 	router.GET("/categories", ctr.index)
 	router.GET("/categories/:categoryId", ctr.view)
-	router.POST("/categories", ctr.create)
-	router.PUT("/categories/:categoryId", ctr.update)
-	router.DELETE("/categories/:categoryId", ctr.delete)
+
+	router.POST("/categories", middlewares.AdminAuth, ctr.create)
+	router.PUT("/categories/:categoryId", middlewares.AdminAuth, ctr.update)
+	router.DELETE("/categories/:categoryId", middlewares.AdminAuth, ctr.delete)
 }
 
 func (ctr *categoryCtr) index(ctx *gin.Context) {

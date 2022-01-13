@@ -11,7 +11,7 @@ import (
 
 type Tags struct {
 	ID   uint   `gorm:"comment:'标签ID';primarykey"`
-	Name string `form:"name" json:"name" gorm:"type:varchar(30);comment:'标签名称';index:idx_name"`
+	Name string `form:"name" json:"name" gorm:"type:varchar(30);not null;comment:'标签名称';index:idx_name"`
 }
 
 func (model *Tags) BuildData() gin.H {

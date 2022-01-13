@@ -8,7 +8,6 @@ import (
 	"blog/enums"
 	"blog/models"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm/clause"
 )
 
 func NewUser() *models.Users {
@@ -37,12 +36,23 @@ func GetToken(ctx *gin.Context) string {
 	return model.GenToken()
 }
 
+func GetUserByToken(token string) *models.Users {
+	var item *models.Users
+
+	err := db().First(&item, "token = ?", token).Error
+	if err != nil {
+		return nil
+	}
+
+	return item
+}
+
 func GetUser(ctx *gin.Context) *models.Users {
 	var item *models.Users
 
 	id := ctx.Param("userId")
 
-	err := db().Preload(clause.Associations).First(&item, "id = ?", id).Error
+	err := db().First(&item, "id = ?", id).Error
 	if err != nil {
 		return nil
 	}
@@ -56,7 +66,7 @@ func GetUsers(ctx *gin.Context) ([]models.Users, error) {
 	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 
-	err := db().Preload(clause.Associations).Offset((page - 1) * limit).Limit(limit).Find(&items).Error
+	err := db().Offset((page - 1) * limit).Limit(limit).Find(&items).Error
 	if err != nil {
 		return nil, err
 	}

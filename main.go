@@ -99,10 +99,12 @@ func buildServer(host, port string) *http.Server {
 	router := gin.Default()
 
 	// 加载中间件
+	router.Use(middlewares.Endpoint)
 	router.Use(middlewares.Cors)
 	router.Use(middlewares.Sign)
 	router.Use(middlewares.CatchError)
 	router.Use(middlewares.Connect)
+	router.Use(middlewares.Token)
 
 	// 注册路由
 	controllers.RegisterRoutes(router)

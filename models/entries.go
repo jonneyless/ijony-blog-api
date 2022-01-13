@@ -12,15 +12,19 @@ import (
 )
 
 type Entries struct {
-	ID          uint           `gorm:"comment:'内容ID';primarykey"`
-	CategoryId  uint           `form:"category_id" json:"category_id" gorm:"type:bigint(20);not null;comment:'分类ID';index:idx_category_id"`
-	UserId      uint           `form:"user_id" json:"user_id" gorm:"type:bigint(20);not null;comment:'用户ID';index:idx_user_id"`
-	Title       string         `form:"title" json:"title" gorm:"type:varchar(255);not null;comment:'标题'"`
-	Content     string         `form:"content" json:"content" gorm:"type:longtext;not null;comment:'内容'"`
-	IsPublished uint           `form:"is_published" json:"is_published" gorm:"type:tinyint(1);default:0;comment:'发布状态'"`
-	DeletedAt   gorm.DeletedAt `gorm:"comment:'删除时间';index:idx_deleted_at"`
-	CreatedAt   time.Time      `gorm:"comment:'创建时间';index:idx_created_at"`
-	UpdatedAt   time.Time      `gorm:"comment:'更新时间';index:idx_updated_at"`
+	ID            uint           `gorm:"comment:'内容ID';primarykey"`
+	CategoryId    uint           `form:"category_id" json:"category_id" gorm:"comment:'分类ID';index:idx_category_id"`
+	UserId        uint           `json:"user_id" gorm:"comment:'用户ID';index:idx_user_id"`
+	Title         string         `form:"title" json:"title" gorm:"type:varchar(255);not null;comment:'标题'"`
+	Summary       string         `form:"summary" json:"summary" gorm:"type:varchar(255);not null;default:'';comment:'摘要'"`
+	Content       string         `form:"content" json:"content" gorm:"type:longtext;not null;comment:'内容'"`
+	Trackback     string         `form:"trackback" json:"trackback" gorm:"type:varchar(255);not null;default:'';comment:'通告地址'"`
+	IsPublished   uint           `form:"is_published" json:"is_published" gorm:"type:tinyint(1) unsigned;not null;default:0;comment:'发布状态'"`
+	ViewCount     uint           `json:"view_count" gorm:"default:0;comment:'阅读数'"`
+	FeedbackCount uint           `json:"feedback_count" gorm:"default:0;comment:'反馈数'"`
+	DeletedAt     gorm.DeletedAt `gorm:"comment:'删除时间';index:idx_deleted_at"`
+	CreatedAt     time.Time      `gorm:"comment:'创建时间';index:idx_created_at"`
+	UpdatedAt     time.Time      `gorm:"comment:'更新时间';index:idx_updated_at"`
 
 	// 关联数据
 	User     Users      `gorm:"foreignkey:UserId;references:ID"`
@@ -28,7 +32,7 @@ type Entries struct {
 	Tags     []Tags     `gorm:"many2many:entry_tags;joinForeignKey:EntryId;joinReferences:TagId"`
 }
 
-func (model *Entries) BuildListData() gin.H {
+func (model *Entries) BuildData() gin.H {
 	var tags []gin.H
 
 	if model.Tags != nil {
@@ -39,30 +43,34 @@ func (model *Entries) BuildListData() gin.H {
 
 	return gin.H{
 		"id":         model.ID,
+		"title":      model.Title,
+		"summary":    model.Summary,
+		"content":    model.Content,
+		"views":      model.ViewCount,
+		"feedbacks":  model.FeedbackCount,
+		"created_at": model.CreatedAt.Format(enums.TimeLayout),
 		"category":   model.Category.BuildData(),
 		"author":     model.User.BuildData(),
-		"title":      model.Title,
-		"content":    model.Content,
 		"tags":       tags,
-		"created_at": model.CreatedAt.Format(enums.TimeLayout),
 	}
 }
 
-func (model *Entries) BuildViewData() gin.H {
-	var tagIds []uint
+func (model *Entries) BuildDetail() gin.H {
+	data := model.BuildData()
 
-	if model.Tags != nil {
-		for _, tag := range model.Tags {
-			tagIds = append(tagIds, tag.ID)
-		}
+	data["trackback"] = model.Trackback
+	data["is_published"] = model.IsPublished
+
+	return data
+}
+
+func (model *Entries) CheckOrSetAuth(userId uint) {
+	if model.UserId == 0 {
+		model.UserId = userId
 	}
 
-	return gin.H{
-		"id":          model.ID,
-		"category_id": model.CategoryId,
-		"title":       model.Title,
-		"content":     model.Content,
-		"tag_ids":     tagIds,
+	if model.UserId != userId {
+		log.Panic(common.ErrorMsgException(enums.Forbidden, "不能修改别人的日志"))
 	}
 }
 
@@ -76,6 +84,9 @@ func (model *Entries) Load(ctx *gin.Context) *Entries {
 	if err := ctx.ShouldBind(&model); err != nil {
 		log.Panic(common.ErrorMsgException(enums.ParamsError, err.Error()))
 	}
+
+	user := GetAdminIdentity(ctx)
+	model.CheckOrSetAuth(user.ID)
 
 	tags := ctx.PostFormArray("tags[]")
 	if len(tags) > 0 {
