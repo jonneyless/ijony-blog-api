@@ -53,7 +53,7 @@ func (ctr *feedbackCtr) create(ctx *gin.Context) {
 		log.Panic(common.ErrorMsgException(enums.SaveError, err.Error()))
 	}
 
-	ctx.JSON(http.StatusOK, common.SuccessResponse("已创建日志", gin.H{"data": model.BuildData()}))
+	ctx.JSON(http.StatusOK, common.SuccessResponse("已创建评论", gin.H{"data": model.BuildData()}))
 }
 
 func (ctr *feedbackCtr) update(ctx *gin.Context) {
@@ -64,7 +64,7 @@ func (ctr *feedbackCtr) update(ctx *gin.Context) {
 		log.Panic(common.ErrorMsgException(enums.SaveError, err.Error()))
 	}
 
-	ctx.JSON(http.StatusOK, common.SuccessResponse("日志更新成功", gin.H{"data": model.BuildData()}))
+	ctx.JSON(http.StatusOK, common.SuccessResponse("评论更新成功", gin.H{"data": model.BuildData()}))
 }
 
 func (ctr *feedbackCtr) delete(ctx *gin.Context) {
@@ -75,5 +75,5 @@ func (ctr *feedbackCtr) delete(ctx *gin.Context) {
 		log.Panic(common.ErrorMsgException(enums.DeleteError, err.Error()))
 	}
 
-	ctx.JSON(http.StatusOK, common.SuccessResponse("日志删除成功", gin.H{"data": model.BuildData()}))
+	ctx.JSON(http.StatusOK, common.SuccessResponse("评论删除成功", gin.H{"data": model.BuildData()}))
 }

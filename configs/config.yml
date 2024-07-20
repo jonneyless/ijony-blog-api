@@ -3,17 +3,14 @@ default: &default
     host: localhost
     port: 4000
   database:
-    host: localhost:3306
+    host: localhost
+    port: 3306
     username: root
     password: root
     database: ijony_blog
-  operators:
-    - hi@crazymaple
 
 development:
   <<: *default
-  database:
-    database: blog
 
 production:
   <<: *default

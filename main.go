@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -148,11 +149,11 @@ func main() {
 
 	// 初始化数据库
 	common.InitDatabase(&common.DatabaseParams{
-		Host:       config.Database.Host,
-		UserName:   config.Database.UserName,
-		Password:   config.Database.Password,
-		Database:   config.Database.Database,
-		AuthSource: config.Database.AuthSource,
+		Host:     config.Database.Host,
+		Port:     config.Database.Port,
+		UserName: config.Database.UserName,
+		Password: config.Database.Password,
+		Database: config.Database.Database,
 	})
 
 	db := common.GetDatabase().Connect()
@@ -165,7 +166,6 @@ func main() {
 	_ = db.AutoMigrate(&models.Interactions{})
 
 	// 写入日志的文件
-	gin.DisableConsoleColor()
 	logFile, _ := os.Create("runtime/logs/service.log")
 	gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
 
@@ -174,7 +174,7 @@ func main() {
 
 	go func() {
 		// 启动 http 服务
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()

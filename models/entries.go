@@ -16,6 +16,7 @@ type Entries struct {
 	CategoryId    uint           `form:"category_id" json:"category_id" gorm:"comment:'分类ID';index:idx_category_id"`
 	UserId        uint           `json:"user_id" gorm:"comment:'用户ID';index:idx_user_id"`
 	Title         string         `form:"title" json:"title" gorm:"type:varchar(255);not null;comment:'标题'"`
+	Cover         string         `form:"cover" json:"cover" gorm:"type:varchar(255);not null;default:'';comment:'封面'"`
 	Summary       string         `form:"summary" json:"summary" gorm:"type:varchar(255);not null;default:'';comment:'摘要'"`
 	Content       string         `form:"content" json:"content" gorm:"type:longtext;not null;comment:'内容'"`
 	Trackback     string         `form:"trackback" json:"trackback" gorm:"type:varchar(255);not null;default:'';comment:'通告地址'"`
